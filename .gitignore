@@ -1,0 +1,7 @@
+web/node_modules/
+internal/server/dist/
+cyberpet-desktop
+cyberpet-desktop-*
+dist/
+*.exe
+*.pid
