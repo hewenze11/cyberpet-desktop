@@ -29,6 +29,7 @@ var allowedCommands = []string{
 
 type execRequest struct {
 	Command string   `json:"command"`
+	Cmd     string   `json:"cmd"` // alias for command (frontend convenience)
 	Args    []string `json:"args"`
 	Cwd     string   `json:"cwd"`
 }
@@ -50,6 +51,18 @@ func HandleExec(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		jsonError(w, "invalid request body", http.StatusBadRequest)
 		return
+	}
+
+	// 支持 cmd 别名
+	if req.Command == "" && req.Cmd != "" {
+		// 解析 cmd 字符串（支持 "echo hello world" 形式）
+		parts := strings.Fields(req.Cmd)
+		if len(parts) > 0 {
+			req.Command = parts[0]
+			if len(parts) > 1 && len(req.Args) == 0 {
+				req.Args = parts[1:]
+			}
+		}
 	}
 
 	// 安全检查
@@ -176,8 +189,8 @@ func HandleWrite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	abs, err := filepath.Abs(req.Path)
-	if err != nil || !strings.HasPrefix(abs, home) {
-		jsonError(w, "path must be within home directory", http.StatusForbidden)
+	if err != nil || (!strings.HasPrefix(abs, home) && !strings.HasPrefix(abs, "/tmp")) {
+		jsonError(w, "path must be within home directory or /tmp", http.StatusForbidden)
 		return
 	}
 
