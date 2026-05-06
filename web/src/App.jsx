@@ -36,11 +36,11 @@ export default function App() {
         ))}
       </aside>
 
-      {/* Main content */}
+      {/* Main content — 用 display:none 隐藏而非卸载，切页面不丢失聊天记录和草稿 */}
       <main className="flex-1 overflow-hidden">
-        {page === 'chat' && <ChatPage />}
-        {page === 'agent' && <AgentPage />}
-        {page === 'settings' && <SettingsPage />}
+        <div className={page === 'chat' ? 'h-full' : 'hidden'}><ChatPage /></div>
+        <div className={page === 'agent' ? 'h-full' : 'hidden'}><AgentPage /></div>
+        <div className={page === 'settings' ? 'h-full' : 'hidden'}><SettingsPage /></div>
       </main>
     </div>
   )
